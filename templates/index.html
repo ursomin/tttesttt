@@ -1,0 +1,219 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#f6f8f7" />
+    <meta name="description" content="내 학습 자료로 만드는 나만의 연습 문제" />
+    <title>모아 | AI 학습 도우미</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&family=Noto+Sans+KR:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar" aria-label="주 메뉴">
+        <a class="brand" href="#home" aria-label="모아 홈">
+          <span class="brand-mark" aria-hidden="true"><span></span><span></span><span></span></span>
+          <span class="brand-name">모아<span class="brand-dot">.</span></span>
+        </a>
+
+        <div class="sidebar-label">WORKSPACE</div>
+        <nav class="main-nav" aria-label="WORKSPACE">
+          <a class="nav-link active" href="#home" data-nav="home">
+            <span class="nav-icon" aria-hidden="true">⌂</span><span>학습 홈</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-label tools-label">TOOLS</div>
+        <nav class="main-nav" aria-label="학습 도구">
+          <a class="nav-link" href="#create" data-nav="create" title="문제 만들기" aria-label="문제 만들기"><span class="nav-icon" aria-hidden="true">✳</span><span>문제 만들기</span></a>
+          <a class="nav-link" href="#api" data-nav="api" title="API 연결">
+            <span class="nav-icon api-nav-icon" aria-hidden="true">⚙</span><span>API 연결</span>
+          </a>
+        </nav>
+
+        <div class="sidebar-label subject-label">MY SUBJECTS <button class="icon-button small" id="sidebarAddSubject" aria-label="과목 추가">＋</button></div>
+        <div class="sidebar-subjects" id="sidebarSubjects"></div>
+
+        <div class="sidebar-spacer"></div>
+        <div class="sidebar-tip">
+          <div class="tip-sparkle" aria-hidden="true">✳</div>
+          <p>오늘도 조금씩,<br /><strong>꾸준히 쌓아가요.</strong></p>
+          <span>매일의 복습이 실력이 돼요</span>
+        </div>
+        <button class="profile-button" type="button">
+          <span class="avatar">민</span>
+          <span class="profile-copy"><strong>김민지</strong><small>나의 학습 공간</small></span>
+          <span class="profile-more" aria-hidden="true">···</span>
+        </button>
+      </aside>
+
+      <main class="main-area" id="home">
+        <header class="topbar">
+          <div class="breadcrumb"><span>모아</span><span class="crumb-divider">/</span><strong id="breadcrumbCurrent">학습 홈</strong></div>
+          <div class="topbar-actions">
+            <span class="demo-badge"><span></span> 데모 모드</span>
+            <button class="icon-button notification-button" aria-label="알림"><span aria-hidden="true">♧</span><i></i></button>
+            <span class="avatar top-avatar">민</span>
+          </div>
+        </header>
+
+        <div class="page-content" id="dashboardView">
+          <div class="workspace-grid" id="history">
+            <div class="primary-column">
+              <section class="section-block" id="subjects">
+                <div class="section-heading">
+                  <div><p class="eyebrow">YOUR LEARNING SPACE</p><h2>내 과목 <span class="heading-count" id="subjectHeadingCount">03</span></h2></div>
+                  <div class="section-actions"><button class="secondary-button" id="openBuilderButton" type="button">선택 과목 문제 만들기 ↗</button><button class="text-button" id="addSubjectButton"><span>＋</span> 과목 추가</button></div>
+                </div>
+                <div class="subject-grid" id="subjectGrid"></div>
+              </section>
+
+              <section class="section-block materials-block" id="materials">
+                <div class="section-heading material-heading">
+                  <div><p class="eyebrow">STUDY MATERIALS</p><h2><span id="materialSubjectName">1-2 과학</span> 자료 <span class="heading-count" id="materialCount">03</span></h2></div>
+                  <label class="upload-button" for="fileInput"><span aria-hidden="true">↑</span> 자료 업로드</label>
+                  <input id="fileInput" type="file" accept=".txt,.pdf,text/plain,application/pdf" multiple hidden />
+                </div>
+                <div class="upload-hint"><span class="hint-info">i</span> TXT, PDF 파일명 표시 데모 <span class="hint-separator">·</span> 실제 업로드/분석은 아직 연결되지 않았어요</div>
+                <div class="file-list" id="fileList"></div>
+                <div class="empty-files" id="emptyFiles" hidden><span>▤</span><strong>아직 등록한 자료가 없어요</strong><small>학습 자료를 올리면 이 과목의 문제를 만들 수 있어요.</small></div>
+              </section>
+            </div>
+
+          </div>
+          <footer class="page-footer"><span>모아 <b>·</b> 오늘도 한 걸음씩</span><span>내 자료로 만드는 나만의 복습 시간</span></footer>
+        </div>
+
+        <section class="builder-view" id="builderView" hidden aria-labelledby="builderTitle">
+          <header class="page-heading">
+            <div><p class="eyebrow">CREATE YOUR PRACTICE</p><h1 id="builderTitle">문제 만들기</h1><p>오늘의 학습 목표에 맞춰 연습을 준비해 보세요.</p></div>
+            <button class="secondary-button" id="builderHomeButton" type="button">← 학습 홈</button>
+          </header>
+          <div class="builder-subject-summary"><span class="quiz-mini-icon" aria-hidden="true">✳</span><div><strong id="builderSubjectName">선택한 과목 없음</strong><p id="builderMaterialCount">등록된 학습 자료 0개</p></div><button class="text-button" id="builderMaterialsButton" type="button">자료 관리 →</button></div>
+          <p class="builder-warning" id="builderWarning" role="status" hidden></p>
+          <section class="quiz-builder" id="quiz">
+                <div class="quiz-card-heading"><div class="quiz-mini-icon" aria-hidden="true">✳</div><div><p class="eyebrow">READY TO PRACTICE?</p><h2>새 문제 만들기</h2></div></div>
+                <p class="quiz-intro">학습한 내용으로 나만의<br />연습 문제를 만들어 보세요.</p>
+
+                <div class="setting-group">
+                  <div class="setting-label"><span>과목</span><span class="setting-helper">문제에 사용할 과목</span></div>
+                  <div class="select-wrap"><select id="quizSubjectSelect" aria-label="문제 생성 과목"></select><span class="select-chevron" aria-hidden="true">⌄</span></div>
+                </div>
+                <div class="setting-group">
+                  <div class="setting-label"><span>난이도</span><span class="setting-helper">원하는 수준을 골라요</span></div>
+                  <div class="choice-row difficulty-options" role="group" aria-label="난이도 선택">
+                    <button class="choice-chip selected" type="button" data-difficulty="easy"><span class="difficulty-dot easy-dot"></span>하</button>
+                    <button class="choice-chip" type="button" data-difficulty="medium"><span class="difficulty-dot medium-dot"></span>중</button>
+                    <button class="choice-chip" type="button" data-difficulty="hard"><span class="difficulty-dot hard-dot"></span>상</button>
+                  </div>
+                </div>
+                <div class="setting-group">
+                  <div class="setting-label"><span>문제 유형</span><span class="setting-helper">1차 개발</span></div>
+                  <div class="type-option"><span class="radio-mark"></span><span><strong>객관식</strong><small>4개 보기 중 하나를 선택</small></span><span class="type-check">✓</span></div>
+                </div>
+                <div class="setting-group count-group">
+                  <div class="setting-label"><span>문제 수</span><span class="setting-helper">한 번에 풀 문제</span></div>
+                  <div class="choice-row count-options" role="group" aria-label="문제 수 선택">
+                    <button class="choice-chip selected" type="button" data-count="5">5문제</button>
+                    <button class="choice-chip" type="button" data-count="10">10문제</button>
+                    <button class="choice-chip" type="button" data-count="20">20문제</button>
+                  </div>
+                </div>
+                <div class="builder-note"><span>✦</span> 지금은 선택한 과목의 예시 문제로 연습해요.</div>
+                <button class="primary-button create-quiz-button" id="createQuizButton"><span>문제 만들기</span><span class="button-arrow" aria-hidden="true">↗</span></button>
+                <p class="demo-caption">선택한 난이도 문항을 우선 배치하며, 부족하면 같은 과목의 다른 난이도로 채워요.</p>
+              </section>
+        </section>
+
+        <section class="quiz-view" id="quizView" hidden>
+          <div class="quiz-view-top"><button class="back-button" id="backToDashboard"><span aria-hidden="true">←</span> 학습 홈</button><div class="quiz-session-label"><span class="quiz-mini-icon">✳</span><span><small id="quizSessionSubject">1-2 과학</small><strong>연습 문제</strong></span></div><span class="session-count" id="sessionCount">01 / 05</span></div>
+          <div class="quiz-progress-track"><div class="quiz-progress-fill" id="quizProgressFill"></div></div>
+          <div class="quiz-content">
+            <div class="question-meta"><span class="question-number" id="questionNumber">QUESTION 01</span><span class="question-difficulty" id="questionDifficulty">기본 개념</span></div>
+            <h1 class="question-title" id="questionTitle"></h1>
+            <div class="question-options" id="questionOptions" role="group" aria-label="정답 선택지"></div>
+            <div class="question-nav"><span class="answer-reminder"><span class="reminder-dot"></span> 답을 선택하면 다음 문제로 넘어갈 수 있어요</span><div class="question-nav-buttons"><button class="secondary-button" id="prevQuestion">이전</button><button class="primary-button next-button" id="nextQuestion">다음 문제 <span>→</span></button></div></div>
+          </div>
+          <div class="quiz-bottom"><span>정답은 제출 후 확인할 수 있어요.</span><button class="submit-quiz-button" id="submitQuizButton" disabled>답안 제출 <span>→</span></button></div>
+        </section>
+
+        <section class="results-view" id="resultsView" hidden>
+          <div class="results-top"><button class="back-button" id="resultsBackButton"><span aria-hidden="true">←</span> 학습 홈</button><span class="result-overline">LEARNING REPORT</span></div>
+          <div class="results-header"><div class="result-confetti" aria-hidden="true">✳</div><p class="eyebrow">SESSION COMPLETE</p><h1 id="resultTitle">잘했어요, 민지님!</h1><p id="resultSubtitle">한 문제씩 풀어낸 오늘의 학습, 정말 멋져요.</p></div>
+          <div class="score-panel"><div class="score-ring" id="scoreRing"><div><strong id="scoreValue">80</strong><span>점</span></div></div><div class="score-copy"><p>이번 학습 점수</p><strong><span id="correctCount">4</span> <small>/ <span id="totalCount">5</span>문제 정답</small></strong><span class="score-subcopy" id="scoreSubcopy">잘하고 있어요. 틀린 문제도 다시 확인해 봐요.</span></div><div class="score-side"><span>과목</span><strong id="resultSubject">1-2 과학</strong><span>난이도</span><strong id="resultDifficulty">하</strong></div></div>
+          <div class="review-heading"><div><p class="eyebrow">ANSWER REVIEW</p><h2>문제 다시 보기 <span id="reviewCount">05</span></h2></div><button class="text-button" id="retryQuizButton"><span>↻</span> 다시 풀기</button></div>
+          <div class="review-list" id="reviewList"></div>
+          <div class="result-bottom"><button class="primary-button" id="resultHomeButton">학습 홈으로 돌아가기 <span>→</span></button></div>
+        </section>
+
+        <section class="api-view" id="apiView" hidden>
+          <div class="api-page-header">
+            <div>
+              <p class="eyebrow">SETTINGS / API CONNECTION</p>
+              <h1>API 연결</h1>
+              <p>AI 문제 생성을 위한 API 키를 관리할 수 있어요.</p>
+            </div>
+            <button class="secondary-button api-home-button" id="apiHomeButton" type="button"><span aria-hidden="true">←</span> 학습 홈</button>
+          </div>
+
+          <div class="api-layout">
+            <section class="api-card api-key-card" aria-labelledby="apiKeyHeading">
+              <div class="api-card-heading">
+                <span class="api-card-icon" aria-hidden="true">⌘</span>
+                <div><p class="eyebrow">GEMINI API</p><h2 id="apiKeyHeading">API 키 입력</h2></div>
+              </div>
+              <p class="api-card-copy">발급받은 API 키를 입력해 주세요. 키는 화면에 다시 표시하지 않아요.</p>
+              <form id="apiKeyForm" autocomplete="off">
+                <label class="field-label" for="apiKeyInput">API 키</label>
+                <div class="api-input-wrap">
+                  <input id="apiKeyInput" class="text-input api-key-input" type="password" placeholder="API 키를 입력하세요" autocomplete="new-password" spellcheck="false" aria-describedby="apiKeyHelp" />
+                  <button class="api-visibility-button" id="toggleApiKeyVisibility" type="button" aria-label="API 키 보기" aria-pressed="false">
+                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.7"></circle><path class="eye-slash" d="m4 4 16 16"></path></svg>
+                  </button>
+                </div>
+                <p class="api-key-help" id="apiKeyHelp">저장된 키를 바꾸려면 새 키를 입력한 뒤 저장해 주세요.</p>
+                <div class="api-key-actions">
+                  <button class="primary-button api-save-button" type="submit">API 키 저장 <span>→</span></button>
+                  <button class="secondary-button api-delete-button" id="deleteApiKeyButton" type="button" hidden>저장된 키 삭제</button>
+                </div>
+              </form>
+              <div class="api-saved-indicator" id="apiSavedIndicator" hidden><span class="saved-check">✓</span><span><strong>API 키 저장 완료</strong><small>•••••••••••• · 현재 탭 세션에만 보관</small></span></div>
+            </section>
+
+            <section class="api-card api-status-card" aria-labelledby="apiStatusHeading">
+              <div class="api-card-heading">
+                <span class="api-card-icon status-card-icon" aria-hidden="true">◉</span>
+                <div><p class="eyebrow">CONNECTION STATUS</p><h2 id="apiStatusHeading">연결 상태</h2></div>
+              </div>
+              <div class="api-status-panel">
+                <span class="status-indicator" id="apiStatusIndicator"></span>
+                <div class="api-status-copy"><strong id="apiStatusLabel">연결되지 않음</strong><small id="apiStatusDetail">API 키를 저장하면 설정 상태를 확인할 수 있어요.</small></div>
+              </div>
+              <div class="api-implementation-note"><span aria-hidden="true">i</span><p><strong>실제 연결 기능은 아직 구현되지 않았어요.</strong><br />API 키 저장은 화면 설정만 처리하며 Gemini API를 호출하지 않습니다.</p></div>
+              <div class="api-status-legend"><span><i class="legend-dot idle"></i>연결되지 않음</span><span><i class="legend-dot saved"></i>키 저장 완료</span></div>
+            </section>
+
+            <aside class="api-security-card">
+              <div class="security-icon" aria-hidden="true">♧</div>
+              <div><h3>안전하게 관리하기</h3><p>현재 프론트엔드 데모에서는 키를 이 페이지가 열린 동안에만 메모리에 보관합니다. 새로고침하거나 페이지를 닫으면 사라져요.</p><p>실제 서비스를 배포할 때는 키를 브라우저에 저장하지 말고 Flask 서버의 환경 변수로 관리해야 합니다.</p></div>
+            </aside>
+          </div>
+        </section>
+      </main>
+    </div>
+
+    <dialog class="subject-dialog" id="subjectDialog" aria-labelledby="dialogTitle">
+      <form id="subjectForm" method="dialog">
+        <div class="dialog-top"><span class="dialog-icon">＋</span><button class="icon-button dialog-close" type="button" id="closeSubjectDialog" aria-label="닫기">×</button></div>
+        <p class="eyebrow">NEW SUBJECT</p><h2 id="dialogTitle">새 과목 추가</h2><p class="dialog-copy">과목 이름을 정하고 학습 자료를 정리해 보세요.</p>
+        <label class="field-label" for="subjectNameInput">과목 이름</label><input id="subjectNameInput" class="text-input" type="text" maxlength="24" placeholder="예: 1-2 역사" required />
+        <div class="dialog-actions"><button class="secondary-button" type="button" id="cancelSubjectButton">취소</button><button class="primary-button" type="submit">과목 만들기 <span>→</span></button></div>
+      </form>
+    </dialog>
+    <div class="toast" id="toast" role="status" aria-live="polite"></div>
+    <script src="{{ url_for('static', filename='app.js') }}" defer></script>
+  </body>
+</html>
