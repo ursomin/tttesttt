@@ -29,9 +29,6 @@
         <div class="sidebar-label tools-label">TOOLS</div>
         <nav class="main-nav" aria-label="학습 도구">
           <a class="nav-link" href="#create" data-nav="create" title="문제 만들기" aria-label="문제 만들기"><span class="nav-icon" aria-hidden="true">✳</span><span>문제 만들기</span></a>
-          <a class="nav-link" href="#api" data-nav="api" title="API 연결">
-            <span class="nav-icon api-nav-icon" aria-hidden="true">⚙</span><span>API 연결</span>
-          </a>
         </nav>
 
         <div class="sidebar-label subject-label">MY SUBJECTS <button class="icon-button small" id="sidebarAddSubject" aria-label="과목 추가">＋</button></div>
@@ -43,11 +40,6 @@
           <p>오늘도 조금씩,<br /><strong>꾸준히 쌓아가요.</strong></p>
           <span>매일의 복습이 실력이 돼요</span>
         </div>
-        <button class="profile-button" type="button">
-          <span class="avatar">민</span>
-          <span class="profile-copy"><strong>김민지</strong><small>나의 학습 공간</small></span>
-          <span class="profile-more" aria-hidden="true">···</span>
-        </button>
       </aside>
 
       <main class="main-area" id="home">
@@ -55,13 +47,11 @@
           <div class="breadcrumb"><span>모아</span><span class="crumb-divider">/</span><strong id="breadcrumbCurrent">학습 홈</strong></div>
           <div class="topbar-actions">
             <span class="demo-badge"><span></span> 데모 모드</span>
-            <button class="icon-button notification-button" aria-label="알림"><span aria-hidden="true">♧</span><i></i></button>
-            <span class="avatar top-avatar">민</span>
           </div>
         </header>
 
         <div class="page-content" id="dashboardView">
-          <div class="workspace-grid" id="history">
+          <div class="workspace-grid">
             <div class="primary-column">
               <section class="section-block" id="subjects">
                 <div class="section-heading">
@@ -82,7 +72,6 @@
                 <div class="empty-files" id="emptyFiles" hidden><span>▤</span><strong>아직 등록한 자료가 없어요</strong><small>학습 자료를 올리면 이 과목의 문제를 만들 수 있어요.</small></div>
               </section>
             </div>
-
           </div>
           <footer class="page-footer"><span>모아 <b>·</b> 오늘도 한 걸음씩</span><span>내 자료로 만드는 나만의 복습 시간</span></footer>
         </div>
@@ -142,65 +131,11 @@
 
         <section class="results-view" id="resultsView" hidden>
           <div class="results-top"><button class="back-button" id="resultsBackButton"><span aria-hidden="true">←</span> 학습 홈</button><span class="result-overline">LEARNING REPORT</span></div>
-          <div class="results-header"><div class="result-confetti" aria-hidden="true">✳</div><p class="eyebrow">SESSION COMPLETE</p><h1 id="resultTitle">잘했어요, 민지님!</h1><p id="resultSubtitle">한 문제씩 풀어낸 오늘의 학습, 정말 멋져요.</p></div>
+          <div class="results-header"><div class="result-confetti" aria-hidden="true">✳</div><p class="eyebrow">SESSION COMPLETE</p><h1 id="resultTitle">잘했어요!</h1><p id="resultSubtitle">한 문제씩 풀어낸 오늘의 학습, 정말 멋져요.</p></div>
           <div class="score-panel"><div class="score-ring" id="scoreRing"><div><strong id="scoreValue">80</strong><span>점</span></div></div><div class="score-copy"><p>이번 학습 점수</p><strong><span id="correctCount">4</span> <small>/ <span id="totalCount">5</span>문제 정답</small></strong><span class="score-subcopy" id="scoreSubcopy">잘하고 있어요. 틀린 문제도 다시 확인해 봐요.</span></div><div class="score-side"><span>과목</span><strong id="resultSubject">1-2 과학</strong><span>난이도</span><strong id="resultDifficulty">하</strong></div></div>
           <div class="review-heading"><div><p class="eyebrow">ANSWER REVIEW</p><h2>문제 다시 보기 <span id="reviewCount">05</span></h2></div><button class="text-button" id="retryQuizButton"><span>↻</span> 다시 풀기</button></div>
           <div class="review-list" id="reviewList"></div>
           <div class="result-bottom"><button class="primary-button" id="resultHomeButton">학습 홈으로 돌아가기 <span>→</span></button></div>
-        </section>
-
-        <section class="api-view" id="apiView" hidden>
-          <div class="api-page-header">
-            <div>
-              <p class="eyebrow">SETTINGS / API CONNECTION</p>
-              <h1>API 연결</h1>
-              <p>AI 문제 생성을 위한 API 키를 관리할 수 있어요.</p>
-            </div>
-            <button class="secondary-button api-home-button" id="apiHomeButton" type="button"><span aria-hidden="true">←</span> 학습 홈</button>
-          </div>
-
-          <div class="api-layout">
-            <section class="api-card api-key-card" aria-labelledby="apiKeyHeading">
-              <div class="api-card-heading">
-                <span class="api-card-icon" aria-hidden="true">⌘</span>
-                <div><p class="eyebrow">GEMINI API</p><h2 id="apiKeyHeading">API 키 입력</h2></div>
-              </div>
-              <p class="api-card-copy">발급받은 API 키를 입력해 주세요. 키는 화면에 다시 표시하지 않아요.</p>
-              <form id="apiKeyForm" autocomplete="off">
-                <label class="field-label" for="apiKeyInput">API 키</label>
-                <div class="api-input-wrap">
-                  <input id="apiKeyInput" class="text-input api-key-input" type="password" placeholder="API 키를 입력하세요" autocomplete="new-password" spellcheck="false" aria-describedby="apiKeyHelp" />
-                  <button class="api-visibility-button" id="toggleApiKeyVisibility" type="button" aria-label="API 키 보기" aria-pressed="false">
-                    <svg viewBox="0 0 24 24" aria-hidden="true"><path d="M2.5 12s3.4-6 9.5-6 9.5 6 9.5 6-3.4 6-9.5 6-9.5-6-9.5-6Z"></path><circle cx="12" cy="12" r="2.7"></circle><path class="eye-slash" d="m4 4 16 16"></path></svg>
-                  </button>
-                </div>
-                <p class="api-key-help" id="apiKeyHelp">저장된 키를 바꾸려면 새 키를 입력한 뒤 저장해 주세요.</p>
-                <div class="api-key-actions">
-                  <button class="primary-button api-save-button" type="submit">API 키 저장 <span>→</span></button>
-                  <button class="secondary-button api-delete-button" id="deleteApiKeyButton" type="button" hidden>저장된 키 삭제</button>
-                </div>
-              </form>
-              <div class="api-saved-indicator" id="apiSavedIndicator" hidden><span class="saved-check">✓</span><span><strong>API 키 저장 완료</strong><small>•••••••••••• · 현재 탭 세션에만 보관</small></span></div>
-            </section>
-
-            <section class="api-card api-status-card" aria-labelledby="apiStatusHeading">
-              <div class="api-card-heading">
-                <span class="api-card-icon status-card-icon" aria-hidden="true">◉</span>
-                <div><p class="eyebrow">CONNECTION STATUS</p><h2 id="apiStatusHeading">연결 상태</h2></div>
-              </div>
-              <div class="api-status-panel">
-                <span class="status-indicator" id="apiStatusIndicator"></span>
-                <div class="api-status-copy"><strong id="apiStatusLabel">연결되지 않음</strong><small id="apiStatusDetail">API 키를 저장하면 설정 상태를 확인할 수 있어요.</small></div>
-              </div>
-              <div class="api-implementation-note"><span aria-hidden="true">i</span><p><strong>실제 연결 기능은 아직 구현되지 않았어요.</strong><br />API 키 저장은 화면 설정만 처리하며 Gemini API를 호출하지 않습니다.</p></div>
-              <div class="api-status-legend"><span><i class="legend-dot idle"></i>연결되지 않음</span><span><i class="legend-dot saved"></i>키 저장 완료</span></div>
-            </section>
-
-            <aside class="api-security-card">
-              <div class="security-icon" aria-hidden="true">♧</div>
-              <div><h3>안전하게 관리하기</h3><p>현재 프론트엔드 데모에서는 키를 이 페이지가 열린 동안에만 메모리에 보관합니다. 새로고침하거나 페이지를 닫으면 사라져요.</p><p>실제 서비스를 배포할 때는 키를 브라우저에 저장하지 말고 Flask 서버의 환경 변수로 관리해야 합니다.</p></div>
-            </aside>
-          </div>
         </section>
       </main>
     </div>

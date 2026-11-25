@@ -122,13 +122,12 @@ function readSavedState() {
       return {
         subjects: saved.subjects,
         selectedSubjectId: saved.selectedSubjectId,
-        quizCount: Number(saved.quizCount) || 24,
       };
     }
   } catch (error) {
     console.info("데모 저장 내용을 불러오지 못해 예시 데이터를 사용합니다.", error);
   }
-  return { subjects: structuredClone(initialSubjects), selectedSubjectId: "science", quizCount: 24 };
+  return { subjects: structuredClone(initialSubjects), selectedSubjectId: "science" };
 }
 
 const state = {
@@ -143,15 +142,11 @@ const state = {
   quizDifficulty: null,
 };
 
-// Demo-only API key state. Keep it in memory; never add it to localStorage or logs.
-let apiKeySession = "";
-
 function saveState() {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify({
       subjects: state.subjects,
       selectedSubjectId: state.selectedSubjectId,
-      quizCount: state.quizCount,
     }));
   } catch (error) {
     console.info("이 브라우저에서는 데모 상태를 저장할 수 없습니다.", error);
@@ -182,74 +177,6 @@ function showToast(message) {
   toast.classList.add("show");
   window.clearTimeout(state.toastTimer);
   state.toastTimer = window.setTimeout(() => toast.classList.remove("show"), 2600);
-}
-
-function renderApiStatus() {
-  const hasKey = Boolean(apiKeySession);
-  $("#apiStatusIndicator").classList.toggle("saved", hasKey);
-  $("#apiStatusLabel").textContent = hasKey
-    ? "API 키 저장 완료 / 연결 기능 미구현"
-    : "연결되지 않음";
-  $("#apiStatusDetail").textContent = hasKey
-    ? "키는 현재 탭 세션에서만 보관 중이며 실제 API 연결은 하지 않았어요."
-    : "API 키를 입력하면 이 탭에서만 설정 상태를 확인할 수 있어요.";
-  $("#apiSavedIndicator").hidden = !hasKey;
-  $("#deleteApiKeyButton").hidden = !hasKey;
-}
-
-function showApiSettings() {
-  $("#builderView").hidden = true;
-  $("#dashboardView").hidden = true;
-  $("#quizView").hidden = true;
-  $("#resultsView").hidden = true;
-  $("#apiView").hidden = false;
-  $("#breadcrumbCurrent").textContent = "API 연결";
-  $$('[data-nav]').forEach((link) => link.classList.toggle("active", link.dataset.nav === "api"));
-  renderApiStatus();
-  window.scrollTo({ top: 0, behavior: "smooth" });
-}
-
-function saveApiKey(event) {
-  event.preventDefault();
-  const newKey = $("#apiKeyInput").value.trim();
-  if (!newKey) {
-    showToast(apiKeySession ? "변경할 API 키를 입력해 주세요." : "API 키를 입력해 주세요.");
-    $("#apiKeyInput").focus();
-    return;
-  }
-  apiKeySession = newKey;
-  $("#apiKeyInput").value = "";
-  $("#apiKeyInput").type = "password";
-  $("#toggleApiKeyVisibility").classList.remove("is-visible");
-  $("#toggleApiKeyVisibility").setAttribute("aria-pressed", "false");
-  $("#toggleApiKeyVisibility").setAttribute("aria-label", "API 키 보기");
-  renderApiStatus();
-  showToast("API 키가 저장되었습니다.");
-}
-
-function deleteApiKey() {
-  apiKeySession = "";
-  $("#apiKeyInput").value = "";
-  $("#apiKeyInput").type = "password";
-  $("#toggleApiKeyVisibility").classList.remove("is-visible");
-  $("#toggleApiKeyVisibility").setAttribute("aria-pressed", "false");
-  $("#toggleApiKeyVisibility").setAttribute("aria-label", "API 키 보기");
-  renderApiStatus();
-  showToast("저장된 API 키를 삭제했어요.");
-}
-
-function toggleApiKeyVisibility() {
-  const input = $("#apiKeyInput");
-  const button = $("#toggleApiKeyVisibility");
-  const visible = input.type === "password";
-  input.type = visible ? "text" : "password";
-  button.classList.toggle("is-visible", visible);
-  button.setAttribute("aria-pressed", String(visible));
-  button.setAttribute("aria-label", visible ? "API 키 숨기기" : "API 키 보기");
-}
-
-function countFiles() {
-  return state.subjects.reduce((total, subject) => total + subject.files.length, 0);
 }
 
 function renderSidebarSubjects() {
@@ -298,26 +225,15 @@ function renderFiles() {
   }).join("");
 }
 
-function renderStats() {
-  const subjects = state.subjects.length;
-  const files = countFiles();
-  $("#subjectHeadingCount").textContent = String(subjects).padStart(2, "0");
-  // Keep summary calculations available without displaying dashboard stat cards.
-  return { subjects, files, quizCount: state.quizCount };
-}
-
 function renderDashboard() {
   if (state.selectedSubjectId && !state.subjects.some((subject) => subject.id === state.selectedSubjectId)) {
-    state.selectedSubjectId = state.subjects[0].id;
+    state.selectedSubjectId = state.subjects[0]?.id || null;
   }
   renderSidebarSubjects();
   renderSubjectCards();
   renderSubjectSelect();
   renderFiles();
-  renderStats();
-  const today = new Intl.DateTimeFormat("ko-KR", { month: "long", day: "numeric", weekday: "long" }).format(new Date());
-  const todayLabel = $("#todayLabel");
-  if (todayLabel) todayLabel.textContent = today;
+  $("#subjectHeadingCount").textContent = String(state.subjects.length).padStart(2, "0");
   renderBuilder();
   saveState();
 }
@@ -437,7 +353,7 @@ function renderBuilder() {
 }
 
 function showBuilder() {
-  ["dashboardView", "quizView", "resultsView", "apiView"].forEach((id) => $("#" + id).hidden = true);
+  ["dashboardView", "quizView", "resultsView"].forEach((id) => $("#" + id).hidden = true);
   $("#builderView").hidden = false;
   $("#breadcrumbCurrent").textContent = "문제 만들기";
   $$("[data-nav]").forEach((link) => link.classList.toggle("active", link.dataset.nav === "create"));
@@ -477,7 +393,6 @@ function buildQuiz() {
   state.questionIndex = 0;
   $("#quizSessionSubject").textContent = subject.name;
   $("#dashboardView").hidden = true;
-  $("#apiView").hidden = true;
   $("#builderView").hidden = true;
   $("#resultsView").hidden = true;
   $("#quizView").hidden = false;
@@ -518,7 +433,6 @@ function submitQuiz() {
   const total = state.currentQuiz.length;
   const score = Math.round((correct / total) * 100);
   const subject = state.quizSubject;
-  state.quizCount += total;
   $("#scoreValue").textContent = score;
   $("#scoreRing").style.background = `conic-gradient(#61a77e 0 ${score * 3.6}deg, #eaf0ec ${score * 3.6}deg 360deg)`;
   $("#correctCount").textContent = correct;
@@ -526,7 +440,7 @@ function submitQuiz() {
   $("#resultSubject").textContent = subject?.name || "과목";
   $("#resultDifficulty").textContent = ({ easy: "하", medium: "중", hard: "상" })[state.quizDifficulty];
   $("#reviewCount").textContent = String(total).padStart(2, "0");
-  $("#resultTitle").textContent = score === 100 ? "완벽해요, 민지님!" : score >= 60 ? "잘했어요, 민지님!" : "다시 확인해 봐요, 민지님!";
+  $("#resultTitle").textContent = score === 100 ? "완벽해요!" : score >= 60 ? "잘했어요!" : "다시 확인해 봐요!";
   $("#resultSubtitle").textContent = score === 100 ? "모든 문제를 맞혔어요. 오늘의 학습이 탄탄하게 쌓였어요." : "한 문제씩 풀어낸 오늘의 학습, 정말 멋져요.";
   $("#scoreSubcopy").textContent = score >= 80 ? "잘하고 있어요. 이 흐름을 이어가 봐요." : "틀린 문제를 다시 확인하며 개념을 다져봐요.";
   $("#reviewList").innerHTML = state.currentQuiz.map((question, index) => {
@@ -536,19 +450,15 @@ function submitQuiz() {
       <p class="review-explanation"><strong>해설</strong>${escapeHTML(question.explanation)}</p></article>`;
   }).join("");
   $("#quizView").hidden = true;
-  $("#apiView").hidden = true;
   $("#builderView").hidden = true;
   $("#resultsView").hidden = false;
   $("#breadcrumbCurrent").textContent = "학습 결과";
-  renderStats();
-  saveState();
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
 
 function showDashboard() {
   $("#quizView").hidden = true;
   $("#resultsView").hidden = true;
-  $("#apiView").hidden = true;
   $("#builderView").hidden = true;
   $("#dashboardView").hidden = false;
   $("#breadcrumbCurrent").textContent = "학습 홈";
@@ -562,7 +472,6 @@ function retryQuiz() {
   state.answers = new Array(state.currentQuiz.length).fill(null);
   state.questionIndex = 0;
   $("#resultsView").hidden = true;
-  $("#apiView").hidden = true;
   $("#builderView").hidden = true;
   $("#quizView").hidden = false;
   $("#breadcrumbCurrent").textContent = "문제 풀이";
@@ -648,19 +557,10 @@ function bindEvents() {
   $("#resultsBackButton").addEventListener("click", showDashboard);
   $("#resultHomeButton").addEventListener("click", showDashboard);
   $("#retryQuizButton").addEventListener("click", retryQuiz);
-  $("#apiHomeButton").addEventListener("click", showDashboard);
-  $("#apiKeyForm").addEventListener("submit", saveApiKey);
-  $("#deleteApiKeyButton").addEventListener("click", deleteApiKey);
-  $("#toggleApiKeyVisibility").addEventListener("click", toggleApiKeyVisibility);
 
   $$("[data-nav]").forEach((link) => link.addEventListener("click", (event) => {
     if (link.dataset.nav === "create") { event.preventDefault(); showBuilder(); return; }
-    if (link.dataset.nav === "api") {
-      event.preventDefault();
-      showApiSettings();
-      return;
-    }
-    if (["quizView", "resultsView", "apiView", "builderView"].some((id) => !$("#" + id).hidden)) showDashboard();
+    if (["quizView", "resultsView", "builderView"].some((id) => !$("#" + id).hidden)) showDashboard();
     $$("[data-nav]").forEach((navLink) => navLink.classList.toggle("active", navLink === link));
     $("#breadcrumbCurrent").textContent = "학습 홈";
     if (link.dataset.nav === "home") {
@@ -672,4 +572,3 @@ function bindEvents() {
 
 bindEvents();
 renderDashboard();
-renderApiStatus();
